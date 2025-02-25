@@ -6,13 +6,15 @@ export const useCart = () => {
   return useContext(CartContext);
 };
 
-export default function CartProvider ({ children }){
+export default function CartProvider({ children }) {
   const [cart, setCart] = useState(() =>
-    localStorage.getItem("cart") ? JSON.parse(localStorage.getItem("cart")) : []
+    localStorage.getItem("cartProduct")
+      ? JSON.parse(localStorage.getItem("cartProduct"))
+      : []
   );
 
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem("cartProduct", JSON.stringify(cart));
   }, [cart]);
 
   const addToCart = (item) => {
@@ -20,24 +22,28 @@ export default function CartProvider ({ children }){
       const existingItem = prevCart.find((cartItem) => cartItem.id === item.id);
 
       if (existingItem) {
-        prevCart.map((cartItem) =>
+        return prevCart.map((cartItem) =>
           cartItem.id === item.id
             ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem
         );
       } else {
-        setCart([...prevCart, { ...item, quantity: 1 }]);
+        return [...prevCart, { ...item, quantity: 1 }];
       }
     });
   };
 
   const removeFromCart = (item) => {
     setCart((prevCart) => {
-        return prevCart.map((cartItem) =>
+      const updatedCart = prevCart
+        .map((cartItem) =>
           cartItem.id === item.id
             ? { ...cartItem, quantity: cartItem.quantity - 1 }
             : cartItem
-        ).filter((cartItem) => cartItem.quantity > 0);
+        )
+        .filter((cartItem) => cartItem.quantity > 0);
+
+      return updatedCart;
     });
   };
 
@@ -59,4 +65,4 @@ export default function CartProvider ({ children }){
       {children}
     </CartContext.Provider>
   );
-};
+}
